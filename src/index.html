@@ -103,8 +103,11 @@
     const CONTEXT          = window.__CONTEXT_URL      ?? "";
     const DB               = window.__DB_URL           ?? "";
     const ADMIN_CONFIG_URL = window.__ADMIN_CONFIG_URL ?? "";
-    const ME       = window.__CURRENT_MEMBER ?? null;
-    const IS_ADMIN = !!window.__IS_ADMIN;
+    // Demo mode: the standalone dev server injects no hub globals, so stand in a
+    // demo adult/admin so the full UI (add, edit, settings) is usable locally.
+    const DEMO     = !window.__CONTEXT_URL;
+    const ME       = window.__CURRENT_MEMBER ?? (DEMO ? { id: "demo-1", name: "Alex", role: "adult" } : null);
+    const IS_ADMIN = window.__IS_ADMIN != null ? !!window.__IS_ADMIN : DEMO;
     const APP_ID   = window.__APP_ID ?? "in-case-of-emergency";
 
     let members   = [];
@@ -392,6 +395,7 @@
     };
 
     async function saveSetting(key, value) {
+      if (!ADMIN_CONFIG_URL) return; // demo mode — settings live only in memory
       const res = await fetch(ADMIN_CONFIG_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
