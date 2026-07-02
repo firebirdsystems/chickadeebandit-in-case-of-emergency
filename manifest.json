@@ -1,0 +1,42 @@
+{
+  "id": "in-case-of-emergency",
+  "name": "In Case of Emergency",
+  "version": "1.0.0",
+  "description": "A shared binder of the things another adult would need to know if you were suddenly unavailable — where documents live, account and utility details, who to call, and how to run the household. Readable by all adults, or restrict it to a designated group.",
+  "entrypoint": "index.html",
+  "runtime": "static",
+  "icon": "🆘",
+  "category": "general",
+  "tags": ["emergency", "household", "reference", "contacts", "planning"],
+  "storage": "db",
+  "db_plaintext_columns": ["visibility"],
+  "data_access": {
+    "reads": ["family.members", "family.groups"],
+    "writes": []
+  },
+  "permissions": {
+    "default_audience": "adults",
+    "requires_approval": false
+  },
+  "row_policies": {
+    "settings": { "kind": "app_config" },
+    "entries": {
+      "kind": "owner_or_visibility",
+      "member_column": "created_by",
+      "visibility_column": "visibility",
+      "everyone_values": [],
+      "adult_values": ["adults"],
+      "privileged_values": ["group"],
+      "write_visibility_scoped": true,
+      "bypass_group_setting": { "settings_table": "settings", "settings_key": "access_group_id" }
+    }
+  },
+  "admin_config": {
+    "settings_table": "settings",
+    "keys": ["access_mode", "access_group_id"]
+  },
+  "nav": { "label": "Emergency Info" },
+  "resource_limits": {
+    "max_db_bytes": 52428800
+  }
+}

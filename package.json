@@ -1,0 +1,16 @@
+{
+  "name": "chickadee-app-in-case-of-emergency",
+  "version": "1.0.0",
+  "description": "In Case of Emergency — a shared household emergency-info binder for Chickadee Bandit",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node dev.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

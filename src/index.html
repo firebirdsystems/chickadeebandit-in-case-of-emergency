@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="/run/in-case-of-emergency/" />
+  <title>In Case of Emergency</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--hub-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+      background: var(--hub-bg, #f9fafb);
+      color: var(--hub-text, #111827);
+      min-height: 100vh;
+      font-size: var(--hub-font-size, 16px);
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+    .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    h1 { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .subtitle { color: var(--hub-text-muted, #6b7280); font-size: 0.9rem; margin-bottom: 16px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    button {
+      background: var(--hub-primary, #111827); color: var(--hub-primary-fg, #fff);
+      border: none; border-radius: var(--hub-radius, 8px); padding: 9px 16px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: var(--hub-primary-hover, #374151); }
+    button:disabled { opacity: 0.6; cursor: default; }
+    button.ghost {
+      background: transparent; color: var(--hub-text, #111827);
+      border: 1px solid var(--hub-border, #e5e7eb);
+    }
+    button.ghost:hover { background: var(--hub-bg, #f3f4f6); }
+    .banner {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      background: var(--hub-surface, #fff); border: 1px solid var(--hub-border, #e5e7eb);
+      border-radius: var(--hub-radius, 12px); padding: 10px 14px; margin-bottom: 16px;
+      font-size: 0.85rem; color: var(--hub-text-muted, #6b7280);
+    }
+    .banner .pill {
+      background: var(--hub-bg, #f3f4f6); color: var(--hub-text, #111827);
+      border-radius: 999px; padding: 2px 10px; font-weight: 600; font-size: 0.8rem;
+    }
+    .cat { margin-bottom: 22px; }
+    .cat h2 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .entry {
+      background: var(--hub-surface, #fff); border: 1px solid var(--hub-border, #e5e7eb);
+      border-radius: var(--hub-radius, 12px); padding: 14px 16px; margin-bottom: 8px;
+    }
+    .entry .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .entry .title { font-weight: 600; }
+    .entry .loc { font-size: 0.82rem; color: var(--hub-text-muted, #6b7280); margin-top: 2px; }
+    .entry .details { margin-top: 8px; white-space: pre-wrap; font-size: 0.92rem; line-height: 1.45; }
+    .entry .acts { display: flex; gap: 6px; flex-shrink: 0; }
+    .entry .acts button { padding: 4px 10px; font-size: 0.78rem; font-weight: 600; }
+    .empty {
+      text-align: center; color: var(--hub-text-muted, #6b7280);
+      padding: 48px 16px; border: 2px dashed var(--hub-border, #e5e7eb);
+      border-radius: var(--hub-radius, 12px);
+    }
+    #status { margin-top: 12px; font-size: 0.85rem; color: var(--hub-text-muted, #6b7280); }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+    }
+    .modal {
+      background: var(--hub-surface, #fff); color: var(--hub-text, #111827);
+      border-radius: var(--hub-radius, 14px); padding: 22px; width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 1.15rem; margin-bottom: 14px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--hub-border, #d1d5db);
+      border-radius: var(--hub-radius, 8px); font: inherit; font-size: 0.92rem;
+      background: var(--hub-bg, #fff); color: var(--hub-text, #111827);
+    }
+    .field textarea { resize: vertical; min-height: 90px; }
+    .hint { font-size: 0.78rem; color: var(--hub-text-muted, #6b7280); margin-top: 4px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="head">
+      <h1>🆘 In Case of Emergency</h1>
+    </div>
+    <p class="subtitle">The things another adult would need to know if you weren't around.</p>
+    <div id="app"></div>
+    <p id="status"></p>
+  </div>
+
+  <script type="module">
+    import { esc, hubConfirm, hubAlert } from "/hub-sdk.js";
+    import {
+      isAdult, CATEGORIES, categoryMeta, normalizeCategory,
+      accessGroup, isInAccessGroup, visibilityForMode,
+      canSeeEntry, canEditEntry, canContribute, groupByCategory,
+    } from "./logic.js";
+
+    const CONTEXT          = window.__CONTEXT_URL      ?? "";
+    const DB               = window.__DB_URL           ?? "";
+    const ADMIN_CONFIG_URL = window.__ADMIN_CONFIG_URL ?? "";
+    const ME       = window.__CURRENT_MEMBER ?? null;
+    const IS_ADMIN = !!window.__IS_ADMIN;
+    const APP_ID   = window.__APP_ID ?? "in-case-of-emergency";
+
+    let members   = [];
+    let memberMap = new Map();
+    let groups    = [];
+    let settings  = { access_mode: "all_adults", access_group_id: null };
+    let entries   = [];
+    let modalEl   = null;
+
+    async function db(sql, params = []) {
+      if (!DB) return { rows: [] };
+      const res = await fetch(DB, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sql, params }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? `Request failed (${res.status})`);
+      }
+      return res.json();
+    }
+
+    function memberName(id) { return memberMap.get(id)?.name ?? "Someone"; }
+
+    async function loadMembers() {
+      if (!CONTEXT) {
+        members = [
+          { id: "demo-1", name: "Alex",   role: "adult" },
+          { id: "demo-2", name: "Jordan", role: "adult" },
+          { id: "demo-3", name: "Sam",    role: "child" },
+        ];
+        groups = [{ id: "demo-g1", name: "Trusted Circle", memberIds: ["demo-1"] }];
+        memberMap = new Map(members.map(m => [m.id, m]));
+        return;
+      }
+      try {
+        const res  = await fetch(`${CONTEXT}?keys=family.members,family.groups`);
+        const data = await res.json();
+        members = data["family.members"] ?? [];
+        groups  = data["family.groups"]  ?? [];
+      } catch { members = []; groups = []; }
+      memberMap = new Map(members.map(m => [m.id, m]));
+    }
+
+    async function loadSettings() {
+      if (!DB) return;
+      const { rows } = await db(
+        `SELECT key, value FROM app_in_case_of_emergency__settings WHERE key IN ('access_mode', 'access_group_id')`
+      );
+      for (const r of rows ?? []) {
+        if (r.key === "access_mode")     settings.access_mode = r.value || "all_adults";
+        if (r.key === "access_group_id") settings.access_group_id = r.value || null;
+      }
+    }
+
+    async function loadEntries() {
+      if (!DB) {
+        const now = new Date().toISOString();
+        entries = [
+          { id: "d1", category: "accounts",  title: "Primary checking account", details: "First National — auto-pays the mortgage and utilities on the 1st.", location_hint: "Statements in the fireproof box, top drawer of the office desk.", visibility: "adults", sort_order: 0, created_by: "demo-1", created_at: now, updated_at: now },
+          { id: "d2", category: "household",  title: "How to get the car serviced", details: "Take the Subaru to Miller's Auto on Route 9. Oil change every ~5,000 mi. Ask for Dave. They keep our service history.", location_hint: "", visibility: "adults", sort_order: 0, created_by: "demo-1", created_at: now, updated_at: now },
+          { id: "d3", category: "contacts",   title: "Insurance agent", details: "Pat Rivera — home & auto. 555-0142. Policy numbers are in the Documents category.", location_hint: "", visibility: "adults", sort_order: 0, created_by: "demo-2", created_at: now, updated_at: now },
+          { id: "d4", category: "documents",  title: "Wills & power of attorney", details: "Signed originals held by our attorney.", location_hint: "Copies in the safe; combo is written inside the recipe box.", visibility: "adults", sort_order: 0, created_by: "demo-1", created_at: now, updated_at: now },
+        ];
+        return;
+      }
+      const { rows } = await db(
+        `SELECT * FROM app_in_case_of_emergency__entries ORDER BY category, sort_order, created_at`
+      );
+      entries = (rows ?? []).map(r => ({ ...r, visibility: r.visibility ?? "adults" }));
+    }
+
+    // ── Rendering ──────────────────────────────────────────────────────────
+    function accessBannerHtml() {
+      const mode = settings.access_mode;
+      const g = accessGroup(groups, settings.access_group_id);
+      let label, note;
+      if (mode === "group") {
+        if (g) { label = `Group: ${g.name}`; note = "Only members of this group (and each entry's author) can see these entries."; }
+        else   { label = "Group (not set up)"; note = "Group mode is on but no valid group is configured — ask an admin to pick one in Settings."; }
+      } else {
+        label = "All adults";
+        note = "Every adult in the household can see and add entries.";
+      }
+      return `<div class="banner"><span class="pill">${esc(label)}</span><span>${esc(note)}</span></div>`;
+    }
+
+    function entryHtml(e) {
+      const canEdit = canEditEntry(e, ME, groups, settings.access_group_id);
+      const acts = canEdit ? `
+        <div class="acts">
+          <button class="ghost" onclick="editEntry('${e.id}')">Edit</button>
+          <button class="ghost" onclick="deleteEntry('${e.id}')">Delete</button>
+        </div>` : "";
+      const loc = e.location_hint ? `<div class="loc">📍 ${esc(e.location_hint)}</div>` : "";
+      const details = e.details ? `<div class="details">${esc(e.details)}</div>` : "";
+      const by = `<div class="loc">Added by ${esc(memberName(e.created_by))}</div>`;
+      return `
+        <div class="entry">
+          <div class="row">
+            <div><div class="title">${esc(e.title)}</div>${loc}${by}</div>
+            ${acts}
+          </div>
+          ${details}
+        </div>`;
+    }
+
+    function render() {
+      const app = document.getElementById("app");
+      const visible = entries.filter(e => canSeeEntry(e, ME, groups, settings.access_group_id));
+      const mayContribute = canContribute(ME, groups, settings.access_mode, settings.access_group_id);
+
+      const toolbar = `
+        <div class="toolbar">
+          ${mayContribute ? `<button onclick="addEntry()">+ Add entry</button>` : ""}
+          ${visible.length ? `<button class="ghost" onclick="printBinder()">🖨️ Print / Save PDF</button>` : ""}
+          ${IS_ADMIN ? `<button class="ghost" onclick="openSettings()">⚙️ Settings</button>` : ""}
+        </div>`;
+
+      let body;
+      if (visible.length === 0) {
+        const msg = mayContribute
+          ? "Nothing here yet. Add where documents live, account details, who to call, and how to run the household."
+          : "There are no entries you can see yet.";
+        body = `<div class="empty">${esc(msg)}</div>`;
+      } else {
+        body = groupByCategory(visible).map(cat => `
+          <div class="cat">
+            <h2>${cat.icon} ${esc(cat.label)}</h2>
+            ${cat.items.map(entryHtml).join("")}
+          </div>`).join("");
+      }
+
+      app.innerHTML = accessBannerHtml() + toolbar + body;
+    }
+
+    // ── Modal ──────────────────────────────────────────────────────────────
+    function openModal(html) {
+      closeModal();
+      modalEl = document.createElement("div");
+      modalEl.className = "modal-backdrop";
+      modalEl.innerHTML = `<div class="modal">${html}</div>`;
+      modalEl.addEventListener("click", e => { if (e.target === modalEl) closeModal(); });
+      document.body.appendChild(modalEl);
+    }
+    function closeModal() { modalEl?.remove(); modalEl = null; }
+    window.closeModal = closeModal;
+
+    function entryFormHtml(e) {
+      const catOpts = CATEGORIES.map(c =>
+        `<option value="${c.key}"${e && e.category === c.key ? " selected" : ""}>${c.icon} ${esc(c.label)}</option>`
+      ).join("");
+      return `
+        <h3>${e ? "Edit entry" : "Add entry"}</h3>
+        <div class="field">
+          <label>Category</label>
+          <select id="f-category">${catOpts}</select>
+        </div>
+        <div class="field">
+          <label>Title</label>
+          <input id="f-title" type="text" placeholder="e.g. Homeowners insurance" value="${e ? esc(e.title) : ""}" data-autofocus />
+        </div>
+        <div class="field">
+          <label>Where to find it <span class="hint" style="display:inline">(optional)</span></label>
+          <input id="f-location" type="text" placeholder="e.g. Fireproof box, office closet" value="${e ? esc(e.location_hint) : ""}" />
+        </div>
+        <div class="field">
+          <label>Details</label>
+          <textarea id="f-details" placeholder="Account numbers, steps, phone numbers, anything another adult would need…">${e ? esc(e.details) : ""}</textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn-primary" onclick="submitEntry(${e ? `'${e.id}'` : "null"})">${e ? "Save" : "Add"}</button>
+        </div>`;
+    }
+
+    window.addEntry = function () {
+      openModal(entryFormHtml(null));
+      focusFirst();
+    };
+    window.editEntry = function (id) {
+      const e = entries.find(x => x.id === id);
+      if (!e) return;
+      openModal(entryFormHtml(e));
+      focusFirst();
+    };
+    function focusFirst() {
+      const el = modalEl?.querySelector("[data-autofocus]");
+      el?.focus();
+    }
+
+    window.submitEntry = async function (existingId) {
+      const title    = document.getElementById("f-title").value.trim();
+      const category = normalizeCategory(document.getElementById("f-category").value);
+      const location = document.getElementById("f-location").value.trim();
+      const details  = document.getElementById("f-details").value.trim();
+      if (!title) { document.getElementById("f-title").focus(); return; }
+
+      const btn = modalEl?.querySelector(".modal-actions .btn-primary");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+      try {
+        const now = new Date().toISOString();
+        if (existingId) {
+          await db(
+            `UPDATE app_in_case_of_emergency__entries
+               SET category = ?, title = ?, location_hint = ?, details = ?, updated_at = ?
+             WHERE id = ?`,
+            [category, title, location, details, now, existingId]
+          );
+          const idx = entries.findIndex(e => e.id === existingId);
+          if (idx !== -1) entries[idx] = { ...entries[idx], category, title, location_hint: location, details, updated_at: now };
+        } else {
+          const id = crypto.randomUUID();
+          const visibility = visibilityForMode(settings.access_mode);
+          await db(
+            `INSERT INTO app_in_case_of_emergency__entries
+               (id, category, title, location_hint, details, visibility, sort_order, created_by, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id, category, title, location, details, visibility, 0, ME?.id ?? "system", now, now]
+          );
+          entries.push({ id, category, title, location_hint: location, details, visibility, sort_order: 0, created_by: ME?.id ?? "system", created_at: now, updated_at: now });
+        }
+        closeModal();
+        render();
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Add"; }
+        await hubAlert("Could not save this entry.", { description: err.message });
+      }
+    };
+
+    window.deleteEntry = async function (id) {
+      const e = entries.find(x => x.id === id);
+      if (!e) return;
+      const ok = await hubConfirm({
+        message: "Delete this entry?",
+        description: `"${e.title}" will be permanently removed.`,
+        confirmLabel: "Delete",
+        destructive: true,
+      });
+      if (!ok) return;
+      try {
+        await db(`DELETE FROM app_in_case_of_emergency__entries WHERE id = ?`, [id]);
+        entries = entries.filter(x => x.id !== id);
+        render();
+      } catch (err) {
+        await hubAlert("Could not delete this entry.", { description: err.message });
+      }
+    };
+
+    // ── Settings (admin only) ────────────────────────────────────────────────
+    window.openSettings = function () {
+      const groupOpts = (groups ?? []).map(g =>
+        `<option value="${g.id}"${settings.access_group_id === g.id ? " selected" : ""}>${esc(g.name)}</option>`
+      ).join("");
+      const noGroups = (groups ?? []).length === 0;
+      openModal(`
+        <h3>Who can see these entries?</h3>
+        <div class="field">
+          <label>Access</label>
+          <select id="f-mode" onchange="onModeChange()">
+            <option value="all_adults"${settings.access_mode !== "group" ? " selected" : ""}>All adults</option>
+            <option value="group"${settings.access_mode === "group" ? " selected" : ""}>A specific group</option>
+          </select>
+        </div>
+        <div class="field" id="group-field" style="${settings.access_mode === "group" ? "" : "display:none"}">
+          <label>Group</label>
+          ${noGroups
+            ? `<div class="hint">No groups exist yet. Create one in the hub's family/group settings first, then return here.</div>`
+            : `<select id="f-group">${groupOpts}</select>
+               <div class="hint">Only members of this group (plus each entry's author) will be able to see the binder.</div>`}
+        </div>
+        <div class="hint">Changing this re-labels every existing entry so the whole binder follows the new setting.</div>
+        <div class="modal-actions">
+          <button class="ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn-primary" onclick="saveSettings()">Save</button>
+        </div>`);
+    };
+
+    window.onModeChange = function () {
+      const mode = document.getElementById("f-mode").value;
+      const gf = document.getElementById("group-field");
+      if (gf) gf.style.display = mode === "group" ? "" : "none";
+    };
+
+    async function saveSetting(key, value) {
+      const res = await fetch(ADMIN_CONFIG_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, value }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Save failed");
+      }
+    }
+
+    window.saveSettings = async function () {
+      const mode = document.getElementById("f-mode").value === "group" ? "group" : "all_adults";
+      const groupSel = document.getElementById("f-group");
+      const groupId = mode === "group" ? (groupSel ? groupSel.value : "") : "";
+
+      if (mode === "group" && !groupId) {
+        await hubAlert("Pick a group first, or choose “All adults”.");
+        return;
+      }
+
+      const btn = modalEl?.querySelector(".modal-actions .btn-primary");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+      try {
+        // Order matters: set the group pointer before the mode, so the moment
+        // entries flip to 'group' the privileged bypass already resolves.
+        await saveSetting("access_group_id", groupId);
+        await saveSetting("access_mode", mode);
+        settings.access_group_id = groupId || null;
+        settings.access_mode = mode;
+
+        // Re-label every entry so the whole binder follows the new setting.
+        const newVis = visibilityForMode(mode);
+        const now = new Date().toISOString();
+        await db(
+          `UPDATE app_in_case_of_emergency__entries SET visibility = ?, updated_at = ? WHERE visibility != ?`,
+          [newVis, now, newVis]
+        );
+        for (const e of entries) e.visibility = newVis;
+
+        closeModal();
+        render();
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = "Save"; }
+        await hubAlert("Could not save settings.", { description: err.message });
+      }
+    };
+
+    // ── Print view ───────────────────────────────────────────────────────────
+    window.printBinder = function () {
+      const visible = entries.filter(e => canSeeEntry(e, ME, groups, settings.access_group_id));
+      const printedOn = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      const sections = groupByCategory(visible).map(cat => `
+        <h2>${cat.icon} ${esc(cat.label)}</h2>
+        ${cat.items.map(e => `
+          <div class="p-entry">
+            <div class="p-title">${esc(e.title)}</div>
+            ${e.location_hint ? `<div class="p-loc">Where: ${esc(e.location_hint)}</div>` : ""}
+            ${e.details ? `<div class="p-details">${esc(e.details)}</div>` : ""}
+          </div>`).join("")}
+      `).join("");
+
+      const w = window.open("", "_blank");
+      if (!w) { hubAlert("Your browser blocked the print window. Allow pop-ups and try again."); return; }
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8" />
+        <title>In Case of Emergency</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #111; max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+          h1 { font-size: 22px; margin-bottom: 2px; }
+          .meta { color: #666; font-size: 13px; margin-bottom: 24px; }
+          h2 { font-size: 15px; margin: 22px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+          .p-entry { margin-bottom: 12px; page-break-inside: avoid; }
+          .p-title { font-weight: 700; }
+          .p-loc { font-size: 13px; color: #444; }
+          .p-details { font-size: 14px; white-space: pre-wrap; margin-top: 3px; line-height: 1.4; }
+          .print-btn { margin-top: 24px; padding: 10px 18px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+          @media print { .print-btn { display: none; } body { padding: 0; } }
+        </style></head><body>
+        <h1>🆘 In Case of Emergency</h1>
+        <div class="meta">Printed ${esc(printedOn)} · Keep this somewhere a trusted person can find it.</div>
+        ${sections || "<p>No entries.</p>"}
+        <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+      </body></html>`);
+      w.document.close();
+    };
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    (async () => {
+      try {
+        await loadMembers();
+        await Promise.all([loadSettings(), loadEntries()]);
+        render();
+      } catch (err) {
+        document.getElementById("status").textContent = `Error: ${err.message}`;
+      }
+    })();
+  </script>
+</body>
+</html>
