@@ -28,7 +28,7 @@
       "adult_values": ["adults"],
       "privileged_values": ["group"],
       "write_visibility_scoped": true,
-      "bypass_group_setting": { "settings_table": "settings", "settings_key": "access_group_id" }
+      "privileged_groups": [{ "settings_table": "settings", "settings_key": "access_group_id" }]
     }
   },
   "admin_config": {
