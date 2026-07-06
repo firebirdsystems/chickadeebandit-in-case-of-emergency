@@ -200,8 +200,8 @@
       const canEdit = canEditEntry(e, ME, groups, settings.access_group_id);
       const acts = canEdit ? `
         <div class="acts">
-          <button class="ghost" onclick="editEntry('${e.id}')">Edit</button>
-          <button class="ghost" onclick="deleteEntry('${e.id}')">Delete</button>
+          <button class="ghost" data-action="edit" data-entry-id="${esc(e.id)}">Edit</button>
+          <button class="ghost" data-action="delete" data-entry-id="${esc(e.id)}">Delete</button>
         </div>` : "";
       const loc = e.location_hint ? `<div class="loc">📍 ${esc(e.location_hint)}</div>` : "";
       const details = e.details ? `<div class="details">${esc(e.details)}</div>` : "";
@@ -245,6 +245,19 @@
       app.innerHTML = accessBannerHtml() + toolbar + body;
     }
 
+    // Delegated handler for entry actions. The #app element persists across
+    // innerHTML re-renders, so binding once here is enough. Entry ids come from
+    // the DB (attacker-controllable via raw /api/db), so they must never be
+    // interpolated into inline handlers — carry them on data-* attributes.
+    function handleEntryAction(event) {
+      const btn = event.target.closest("button[data-action][data-entry-id]");
+      if (!btn) return;
+      const id = btn.dataset.entryId;
+      if (btn.dataset.action === "edit") window.editEntry(id);
+      else if (btn.dataset.action === "delete") window.deleteEntry(id);
+    }
+    document.getElementById("app").addEventListener("click", handleEntryAction);
+
     // ── Modal ──────────────────────────────────────────────────────────────
     function openModal(html) {
       closeModal();
@@ -281,7 +294,7 @@
         </div>
         <div class="modal-actions">
           <button class="ghost" onclick="closeModal()">Cancel</button>
-          <button class="btn-primary" onclick="submitEntry(${e ? `'${e.id}'` : "null"})">${e ? "Save" : "Add"}</button>
+          <button class="btn-primary"${e ? ` data-entry-id="${esc(e.id)}"` : ""} onclick="submitEntry()">${e ? "Save" : "Add"}</button>
         </div>`;
     }
 
@@ -300,14 +313,18 @@
       el?.focus();
     }
 
-    window.submitEntry = async function (existingId) {
+    window.submitEntry = async function () {
+      // The entry id (when editing) is carried on the Save button's data-* rather
+      // than interpolated into its inline handler — ids are DB-sourced and thus
+      // attacker-controllable via raw /api/db.
+      const btn = modalEl?.querySelector(".modal-actions .btn-primary");
+      const existingId = btn?.dataset.entryId || null;
       const title    = document.getElementById("f-title").value.trim();
       const category = normalizeCategory(document.getElementById("f-category").value);
       const location = document.getElementById("f-location").value.trim();
       const details  = document.getElementById("f-details").value.trim();
       if (!title) { document.getElementById("f-title").focus(); return; }
 
-      const btn = modalEl?.querySelector(".modal-actions .btn-primary");
       if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
 
       try {
