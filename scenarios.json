@@ -1,0 +1,38 @@
+{
+  "scenarios": [
+    {
+      "name": "adults-visibility entries are hidden from children; group entries hidden from unprivileged adults",
+      "members": { "author": "adult", "adult": "adult", "kid": "child" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, created_by, created_at, updated_at) VALUES (?, 'other', ?, ?, 'adults', ?, ?, ?)",
+          "params": ["e-adults", "Safe combination", "1-2-3-4", "{{author}}", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, created_by, created_at, updated_at) VALUES (?, 'other', ?, ?, 'group', ?, ?, ?)",
+          "params": ["e-group", "Board-only key", "lockbox", "{{author}}", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"]
+        },
+        {
+          "action": "db",
+          "as": "adult",
+          "sql": "SELECT id FROM app_in_case_of_emergency__entries",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "e-adults" }] }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "SELECT id FROM app_in_case_of_emergency__entries",
+          "expect": { "status": 200, "rowCount": 0 }
+        },
+        {
+          "action": "db",
+          "as": "author",
+          "sql": "SELECT id FROM app_in_case_of_emergency__entries",
+          "expect": { "status": 200, "rowCount": 2 }
+        }
+      ]
+    }
+  ]
+}
