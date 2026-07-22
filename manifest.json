@@ -1,5 +1,6 @@
 {
   "id": "in-case-of-emergency",
+  "contexts": ["household", "shared_space"],
   "name": "In Case of Emergency",
   "version": "1.0.0",
   "description": "A shared binder of the things another adult would need to know if you were suddenly unavailable — where documents live, account and utility details, who to call, and how to run the household. Readable by all adults, or restrict it to a designated group.",
