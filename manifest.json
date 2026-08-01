@@ -19,6 +19,9 @@
     "default_audience": "adults",
     "requires_approval": false
   },
+  "member_references": {
+    "entries": { "column": "created_by", "on_removed": "keep" }
+  },
   "row_policies": {
     "settings": { "kind": "app_config" },
     "entries": {
@@ -29,7 +32,11 @@
       "adult_values": ["adults"],
       "privileged_values": ["group"],
       "write_visibility_scoped": true,
-      "privileged_groups": [{ "settings_table": "settings", "settings_key": "access_group_id" }]
+      "privileged_groups": [{
+        "settings_table": "settings",
+        "settings_key": "access_group_id",
+        "on_unresolvable": "adults"
+      }]
     }
   },
   "admin_config": {

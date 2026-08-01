@@ -438,24 +438,57 @@
       if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
 
       try {
-        // Order matters: set the group pointer before the mode, so the moment
-        // entries flip to 'group' the privileged bypass already resolves.
-        await saveSetting("access_group_id", groupId);
-        await saveSetting("access_mode", mode);
-        settings.access_group_id = groupId || null;
-        settings.access_mode = mode;
+        // The group pointer is what makes the caller privileged, and privilege
+        // is what lets the relabel below touch OTHER members' entries. So it is
+        // acquired first and surrendered last:
+        //
+        //   → group      : point at the group, THEN relabel to 'group'
+        //   → all adults : relabel to 'adults' while still privileged, THEN clear
+        //
+        // The previous order cleared the pointer first, so the relabel ran
+        // unprivileged, matched only the caller's own rows, and reported
+        // success — leaving every other member's entry stranded at 'group' with
+        // no group to resolve, readable by no one, permanently.
+        if (mode === "group") await saveSetting("access_group_id", groupId);
 
-        // Re-label every entry so the whole binder follows the new setting.
         const newVis = visibilityForMode(mode);
         const now = new Date().toISOString();
         await db(
           `UPDATE app_in_case_of_emergency__entries SET visibility = ?, updated_at = ? WHERE visibility != ?`,
           [newVis, now, newVis]
         );
-        for (const e of entries) e.visibility = newVis;
+
+        // Counted while the old privilege still applies, so it sees every row
+        // the relabel was supposed to reach — not just this member's.
+        const { rows: leftover } = await db(
+          `SELECT COUNT(*) AS n FROM app_in_case_of_emergency__entries WHERE visibility != ?`,
+          [newVis]
+        );
+        const stranded = Number(leftover?.[0]?.n ?? 0);
+
+        await saveSetting("access_mode", mode);
+        settings.access_mode = mode;
+
+        if (mode === "group") {
+          settings.access_group_id = groupId;
+        } else if (stranded === 0) {
+          await saveSetting("access_group_id", "");
+          settings.access_group_id = null;
+        }
+        if (stranded === 0) for (const e of entries) e.visibility = newVis;
 
         closeModal();
         render();
+        if (stranded > 0) {
+          // The group pointer is deliberately left in place: it is the only
+          // thing that still makes those entries reachable.
+          await hubAlert(
+            `${stranded} ${stranded === 1 ? "entry" : "entries"} could not be re-labelled.`,
+            { description: "The designated group is still set so those entries stay readable. Ask their authors to re-save them, then change this setting again." }
+          );
+          await loadEntries();
+          render();
+        }
       } catch (err) {
         if (btn) { btn.disabled = false; btn.textContent = "Save"; }
         await hubAlert("Could not save settings.", { description: err.message });
