@@ -123,3 +123,13 @@ export function groupByCategory(entries) {
   }
   return out;
 }
+
+/**
+ * Fields the in-app search matches against (see hub-sdk `searchMatch`).
+ * The details are the whole entry — where a document lives, which
+ * account, who to ring. Under pressure this is looked up by fragment,
+ * not by browsing categories.
+ */
+export function searchableFields(item) {
+  return [item.title, item.details, item.category, item.location_hint];
+}

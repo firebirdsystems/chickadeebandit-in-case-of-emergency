@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { testPrivilegedGateContract } from "./helpers/privileged-gate.mjs";
 import {
   CATEGORIES, normalizeCategory, accessGroup, isInAccessGroup,
-  visibilityForMode, canSeeEntry, canEditEntry, canContribute, groupByCategory,
+  visibilityForMode, canSeeEntry, canEditEntry, canContribute, groupByCategory, searchableFields,
 } from "../src/logic.js";
 
 const adultIn   = { id: "a1", role: "adult" };   // adult, in the access group
@@ -102,5 +102,12 @@ describe("groupByCategory", () => {
     ]);
     expect(grouped.map(g => g.key)).toEqual(["accounts", "contacts"]);
     expect(grouped[0].items.map(i => i.id)).toEqual(["3", "1"]); // by sort_order
+  });
+});
+
+describe("searchableFields", () => {
+  it("matches on the details, which is where the actual information lives", () => {
+    const fields = searchableFields({ title: "House deeds", details: "green folder, top of the wardrobe", category: "documents", location_hint: "" });
+    expect(fields).toContain("green folder, top of the wardrobe");
   });
 });

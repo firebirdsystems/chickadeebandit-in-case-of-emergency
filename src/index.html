@@ -80,6 +80,13 @@
     .field textarea { resize: vertical; min-height: 90px; }
     .hint { font-size: 0.78rem; color: var(--hub-text-muted, #6b7280); margin-top: 4px; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .search-row { margin-bottom: 12px; }
+    .search-input {
+      width: 100%; border: 1.5px solid var(--border-mid, var(--border, #d1d5db));
+      border-radius: 8px; padding: 9px 11px; font: inherit;
+      background: var(--surface, var(--card, #fff)); color: var(--text, inherit);
+    }
+    .search-input:focus { outline: none; border-color: var(--accent, #6366f1); }
   </style>
 </head>
 <body>
@@ -93,11 +100,11 @@
   </div>
 
   <script type="module">
-    import { esc, hubConfirm, hubAlert } from "/hub-sdk.js";
+    import { esc, hubConfirm, hubAlert, searchMatch } from "/hub-sdk.js";
     import {
       isAdult, CATEGORIES, categoryMeta, normalizeCategory,
       accessGroup, isInAccessGroup, visibilityForMode,
-      canSeeEntry, canEditEntry, canContribute, groupByCategory,
+      canSeeEntry, canEditEntry, canContribute, groupByCategory, searchableFields,
     } from "./logic.js";
 
     const CONTEXT          = window.__CONTEXT_URL      ?? "";
@@ -115,6 +122,7 @@
     let groups    = [];
     let settings  = { access_mode: "all_adults", access_group_id: null };
     let entries   = [];
+let searchQ = "";       // in-app search (see logic.js searchableFields)
     let modalEl   = null;
 
     async function db(sql, params = []) {
@@ -216,6 +224,12 @@
         </div>`;
     }
 
+    document.addEventListener("input", (e) => {
+      if (e.target.id !== "search") return;
+      searchQ = e.target.value;
+      render();
+    });
+
     function render() {
       const app = document.getElementById("app");
       const visible = entries.filter(e => canSeeEntry(e, ME, groups, settings.access_group_id));
@@ -228,21 +242,31 @@
           ${IS_ADMIN ? `<button class="ghost" onclick="openSettings()">⚙️ Settings</button>` : ""}
         </div>`;
 
+      const searchRow = visible.length ? `<div class="search-row"><input id="search" class="search-input" type="search" placeholder="Search the binder…" aria-label="Search the binder" value="${esc(searchQ)}" /></div>` : "";
+      const shown = searchQ ? visible.filter(e => searchMatch(searchQ, searchableFields(e))) : visible;
+
       let body;
-      if (visible.length === 0) {
+      if (visible.length && shown.length === 0) {
+        body = `<div class="empty">Nothing matches "${esc(searchQ)}".</div>`;
+      } else if (visible.length === 0) {
         const msg = mayContribute
           ? "Nothing here yet. Add where documents live, account details, who to call, and how to run the household."
           : "There are no entries you can see yet.";
         body = `<div class="empty">${esc(msg)}</div>`;
       } else {
-        body = groupByCategory(visible).map(cat => `
+        body = groupByCategory(shown).map(cat => `
           <div class="cat">
             <h2>${cat.icon} ${esc(cat.label)}</h2>
             ${cat.items.map(entryHtml).join("")}
           </div>`).join("");
       }
 
-      app.innerHTML = accessBannerHtml() + toolbar + body;
+      app.innerHTML = accessBannerHtml() + toolbar + searchRow + body;
+      // render() rewrites the whole view, so put the caret back after typing.
+      if (searchQ) {
+        const el = document.getElementById("search");
+        if (el) { el.focus(); el.setSelectionRange(searchQ.length, searchQ.length); }
+      }
     }
 
     // Delegated handler for entry actions. The #app element persists across
