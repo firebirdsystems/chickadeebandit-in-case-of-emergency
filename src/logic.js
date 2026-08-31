@@ -35,19 +35,48 @@ export function accessGroup(groups, groupId) {
 }
 
 /**
- * Whether a member belongs to the configured access group.
+ * Whether a member is privileged for the configured access group.
  *
- * MUST mirror the hub's `memberInAppGroupSetting` (the resolver behind the
- * `entries` policy's `bypass_group_setting` / `privileged_values` grant):
- * privileged IFF a group is configured AND it still exists AND the member is in
- * it. There is deliberately NO "all adults" fallback when unset — the hub grants
- * no bypass in that state. Gate signature is (member, groups, groupId) so it can
- * be checked with testPrivilegedGateContract.
+ * MUST mirror the hub's `resolveAppGroupSetting`, which has THREE outcomes, not
+ * two — and this app is the only one in the catalogue whose manifest opts into
+ * the third, via `privileged_groups[0].on_unresolvable: "adults"`:
+ *
+ *   - no group configured      -> "not_member". No bypass; the policy's
+ *                                 non-privileged rules apply as written.
+ *   - configured, you are in   -> "member". Privileged.
+ *   - configured, but that group is DELETED or has an EMPTY roster
+ *                              -> "unresolvable". Nobody could ever be
+ *                                 privileged again, which would strand every
+ *                                 `visibility: 'group'` entry behind a grant no
+ *                                 one holds — so the hub falls back to treating
+ *                                 supervisors as privileged (and logs
+ *                                 `app_privileged_group_unresolvable`).
+ *
+ * Collapsing "unresolvable" into "not_member" — which this gate used to do, and
+ * which `testPrivilegedGateContract`'s default contract still pins for the other
+ * fifteen apps — defeats that fallback from the client side: the hub reopens the
+ * binder and the browser keeps it shut, so the safe combinations and medical
+ * details go silently missing from every member's render AND from Print, in the
+ * one app whose whole premise is being readable in an emergency.
+ *
+ * Granting adults here cannot over-reveal or 403:
+ *   - reads: this only filters rows the hub already delivered, so in a shared
+ *     space (where supervision is the steward's, not every adult's) there is
+ *     nothing extra to show;
+ *   - writes: `entries` has no insert_privileged_only / write_privileged_only —
+ *     inserts are owner-scoped and updates are `write_visibility_scoped`, i.e.
+ *     writes follow reads. So there is no server rule left to out-run.
+ *
+ * Gate signature stays (member, groups, groupId) for testPrivilegedGateContract.
  */
 export function isInAccessGroup(member, groups, groupId) {
   if (!member) return false;
+  if (!groupId) return false;
   const g = accessGroup(groups, groupId);
-  return !!g && g.memberIds.includes(member.id);
+  // Deleted group, or one whose last member was removed — the hub's
+  // "unresolvable" state.
+  if (!g || (g.memberIds ?? []).length === 0) return isAdult(member);
+  return g.memberIds.includes(member.id);
 }
 
 /**

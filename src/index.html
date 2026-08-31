@@ -215,7 +215,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
       const details = e.details ? `<div class="details">${esc(e.details)}</div>` : "";
       const by = `<div class="loc">Added by ${esc(memberName(e.created_by))}</div>`;
       return `
-        <div class="entry">
+        <div class="entry" data-testid="entry" data-entry-id="${esc(e.id)}" data-entry-visibility="${esc(e.visibility)}">
           <div class="row">
             <div><div class="title">${esc(e.title)}</div>${loc}${by}</div>
             ${acts}
@@ -237,7 +237,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
 
       const toolbar = `
         <div class="toolbar">
-          ${mayContribute ? `<button onclick="addEntry()">+ Add entry</button>` : ""}
+          ${mayContribute ? `<button data-testid="add-entry" onclick="addEntry()">+ Add entry</button>` : ""}
           ${visible.length ? `<button class="ghost" onclick="printBinder()">🖨️ Print / Save PDF</button>` : ""}
           ${IS_ADMIN ? `<button class="ghost" onclick="openSettings()">⚙️ Settings</button>` : ""}
         </div>`;

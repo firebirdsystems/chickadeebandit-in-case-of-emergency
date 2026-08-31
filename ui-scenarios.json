@@ -1,0 +1,160 @@
+{
+  "scenarios": [
+    {
+      "name": "in group mode the browser refuses the Add control to an adult the hub would still accept a row from",
+      "members": {
+        "viewer": "adult",
+        "other": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedGroup",
+          "group": "circle",
+          "name": "Trusted Circle",
+          "members": [
+            "other"
+          ]
+        },
+        {
+          "action": "seedGroup",
+          "group": "mine",
+          "name": "Binder Keepers",
+          "members": [
+            "viewer"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES ('access_mode', 'group')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES ('access_group_id', ?)",
+          "params": [
+            "{{group:circle}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, location_hint, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, 'medical', ?, ?, ?, 'adults', 0, ?, datetime('now'), datetime('now'))",
+          "params": [
+            "ui-adults",
+            "Blood type and allergies",
+            "Kept in the hall cupboard.",
+            "Hall cupboard",
+            "{{other}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"entry\"][data-entry-id=\"ui-adults\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"add-entry\"]",
+          "count": 0
+        },
+        {
+          "action": "seedRaw",
+          "sql": "UPDATE app_in_case_of_emergency__settings SET value = ? WHERE key = 'access_group_id'",
+          "params": [
+            "{{group:mine}}"
+          ]
+        },
+        {
+          "action": "reload",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"entry\"][data-entry-id=\"ui-adults\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"add-entry\"]"
+        }
+      ]
+    },
+    {
+      "name": "when the access group is emptied the hub reopens the binder to adults and the browser follows",
+      "members": {
+        "viewer": "adult",
+        "author": "admin"
+      },
+      "steps": [
+        {
+          "action": "seedGroup",
+          "group": "circle",
+          "name": "Trusted Circle",
+          "members": []
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES ('access_mode', 'group')"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES ('access_group_id', ?)",
+          "params": [
+            "{{group:circle}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, location_hint, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, 'medical', ?, ?, ?, 'adults', 0, ?, datetime('now'), datetime('now'))",
+          "params": [
+            "ui-adults",
+            "Blood type and allergies",
+            "Kept in the hall cupboard.",
+            "Hall cupboard",
+            "{{author}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, location_hint, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, 'medical', ?, ?, ?, 'group', 0, ?, datetime('now'), datetime('now'))",
+          "params": [
+            "ui-group",
+            "Safe combination and spare keys",
+            "Behind the boiler panel.",
+            "Utility room",
+            "{{author}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"entry\"][data-entry-id=\"ui-adults\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"entry\"][data-entry-id=\"ui-group\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "viewer",
+          "text": "Safe combination and spare keys",
+          "selector": "[data-testid=\"entry\"][data-entry-id=\"ui-group\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"add-entry\"]"
+        }
+      ]
+    }
+  ]
+}

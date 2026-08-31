@@ -42,6 +42,8 @@ describe("accessGroup / visibilityForMode", () => {
 // isInAccessGroup fronts the 'group' privileged read/bypass — pin it to the hub.
 testPrivilegedGateContract("isInAccessGroup", isInAccessGroup, {
   member: adultIn, outsider: adultOut, groups: GROUPS, groupId: GID,
+  // This app's manifest declares privileged_groups[0].on_unresolvable: "adults".
+  onUnresolvable: "adults",
 });
 
 describe("canSeeEntry (mirrors owner_or_visibility SELECT)", () => {

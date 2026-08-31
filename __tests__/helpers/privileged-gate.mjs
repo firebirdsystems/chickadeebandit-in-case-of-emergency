@@ -21,6 +21,16 @@ import { test, expect } from "vitest";
  * exact mismatch that shipped in document-library / amenity-reservations /
  * architectural-review and was fixed 2026-06-28.
  *
+ * `onUnresolvable: "adults"` selects the OTHER hub contract, for the app whose
+ * manifest declares `privileged_groups[].on_unresolvable: "adults"` (today only
+ * in-case-of-emergency). The hub splits "no group configured" from "a group id
+ * is stored but that group is deleted or empty" — see `resolveAppGroupSetting`
+ * — and falls back to supervisors in the second case so the guarded rows are
+ * not stranded behind a grant nobody holds. A gate for such an app must return
+ * `true` for an adult there; returning `false` hides data the hub has already
+ * released. Do NOT pass this option for an app whose manifest omits
+ * `on_unresolvable`: there it would show write UI the hub blocks.
+ *
  * Call this from `logic.test.mjs` for every gate fronting a privileged table:
  *
  *   import { testPrivilegedGateContract } from "./helpers/privileged-gate.mjs";
@@ -33,13 +43,16 @@ import { test, expect } from "vitest";
  *
  * @param {string} label  human name of the gate, e.g. "isBoard"
  * @param {(member: object|null, groups: Array, groupId: string|null) => boolean} gate
- * @param {{ member: object, outsider: object, groups: Array, groupId: string }} fx
+ * @param {{ member: object, outsider: object, groups: Array, groupId: string,
+ *           onUnresolvable?: "deny" | "adults" }} fx
  *   `member` must be an adult who is a member of `groupId`; `outsider` an adult
  *   who is not. (Adult so the assertions hold even for gates that additionally
- *   require adulthood, e.g. amenity-reservations.)
+ *   require adulthood, e.g. amenity-reservations.) `onUnresolvable` must match
+ *   the app manifest's `privileged_groups[].on_unresolvable`; default "deny".
  */
 export function testPrivilegedGateContract(label, gate, fx) {
-  const { member, outsider, groups, groupId } = fx;
+  const { member, outsider, groups, groupId, onUnresolvable = "deny" } = fx;
+  const adultsFallback = onUnresolvable === "adults";
 
   test(`${label} — privileged for a member of the configured group`, () => {
     expect(gate(member, groups, groupId)).toBe(true);
@@ -62,7 +75,23 @@ export function testPrivilegedGateContract(label, gate, fx) {
     expect(gate(outsider, groups, "")).toBe(false);
   });
 
-  test(`${label} — NOT privileged when the configured group no longer exists`, () => {
-    expect(gate(member, groups, "missing-group-id")).toBe(false);
-  });
+  // "Unresolvable": a group id IS stored, but it resolves to nothing — either the
+  // group was deleted, or its last member was removed. The hub separates this
+  // from "unset"; only the `adults` disposition grants a bypass here.
+  const emptyGroups = [...groups, { id: "empty-group-id", memberIds: [] }];
+
+  test(
+    `${label} — ${adultsFallback ? "privileged for an adult" : "NOT privileged"} when the configured group no longer exists`,
+    () => {
+      expect(gate(member, groups, "missing-group-id")).toBe(adultsFallback);
+      expect(gate(outsider, groups, "missing-group-id")).toBe(adultsFallback);
+    },
+  );
+
+  test(
+    `${label} — ${adultsFallback ? "privileged for an adult" : "NOT privileged"} when the configured group has an empty roster`,
+    () => {
+      expect(gate(member, emptyGroups, "empty-group-id")).toBe(adultsFallback);
+    },
+  );
 }
