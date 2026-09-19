@@ -538,13 +538,13 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
       w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8" />
         <title>In Case of Emergency</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #111; max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--hub-text, #111); max-width: 720px; margin: 0 auto; padding: 32px 24px; }
           h1 { font-size: 22px; margin-bottom: 2px; }
-          .meta { color: #666; font-size: 13px; margin-bottom: 24px; }
+          .meta { color: var(--hub-text-muted, #666); font-size: 13px; margin-bottom: 24px; }
           h2 { font-size: 15px; margin: 22px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
           .p-entry { margin-bottom: 12px; page-break-inside: avoid; }
           .p-title { font-weight: 700; }
-          .p-loc { font-size: 13px; color: #444; }
+          .p-loc { font-size: 13px; color: var(--hub-text, #444); }
           .p-details { font-size: 14px; white-space: pre-wrap; margin-top: 3px; line-height: 1.4; }
           .print-btn { margin-top: 24px; padding: 10px 18px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
           @media print { .print-btn { display: none; } body { padding: 0; } }
