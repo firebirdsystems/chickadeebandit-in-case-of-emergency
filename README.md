@@ -1,5 +1,7 @@
 # In Case of Emergency 🆘
 
+A [Chickadee Bandit](https://chickadeebandit.com/app-library/in-case-of-emergency) app.
+
 A shared household binder for the things another adult would need to know if you
 were suddenly unavailable — where documents live, account & utility details, who
 to call, medical info, passwords, and how to run the household.
