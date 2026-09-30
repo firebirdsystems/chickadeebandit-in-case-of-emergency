@@ -10,6 +10,10 @@
   "category": "general",
   "tags": ["emergency", "household", "reference", "contacts", "planning"],
   "storage": "db",
+  "preload": {
+    "settings": { "sql": "SELECT key, value FROM app_in_case_of_emergency__settings WHERE key IN ('access_mode', 'access_group_id')" },
+    "entries": { "sql": "SELECT * FROM app_in_case_of_emergency__entries ORDER BY category, sort_order, created_at" }
+  },
   "db_plaintext_columns": ["visibility"],
   "data_access": {
     "reads": ["family.members", "family.groups"],

@@ -3,6 +3,7 @@
     {
       "name": "adults-visibility entries are hidden from children; group entries hidden from unprivileged adults",
       "members": { "author": "adult", "adult": "adult", "kid": "child" },
+      "granted": ["kid"],
       "steps": [
         {
           "action": "seedRaw",
@@ -31,6 +32,53 @@
           "as": "author",
           "sql": "SELECT id FROM app_in_case_of_emergency__entries",
           "expect": { "status": 200, "rowCount": 2 }
+        }
+      ]
+    },
+    {
+      "name": "an access-group adult sees and edits group-only entries; a plain adult outside the group sees and changes neither",
+      "members": { "author": "adult", "insider": "adult", "outsider": "adult" },
+      "steps": [
+        { "action": "seedGroup", "group": "access", "name": "Emergency access", "members": ["author", "insider"] },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES ('access_group_id', ?)",
+          "params": ["{{group:access}}"]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, created_by, created_at, updated_at) VALUES ('e-group', 'other', 'Lockbox code', '9-9-9', 'group', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('e-adults', 'other', 'Water shutoff', 'basement', 'adults', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{author}}", "{{author}}"]
+        },
+        {
+          "action": "db",
+          "as": "insider",
+          "sql": "SELECT id FROM app_in_case_of_emergency__entries ORDER BY id",
+          "expect": { "status": 200, "rowCount": 2, "rowsContain": [{ "id": "e-adults" }, { "id": "e-group" }] }
+        },
+        {
+          "action": "db",
+          "as": "outsider",
+          "sql": "SELECT id FROM app_in_case_of_emergency__entries",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "e-adults" }] }
+        },
+        {
+          "action": "db",
+          "as": "outsider",
+          "sql": "UPDATE app_in_case_of_emergency__entries SET details = 'tampered' WHERE id = 'e-group'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "insider",
+          "sql": "UPDATE app_in_case_of_emergency__entries SET details = '1-2-3' WHERE id = 'e-group'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "author",
+          "sql": "SELECT id, details FROM app_in_case_of_emergency__entries WHERE id = 'e-group'",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "e-group", "details": "1-2-3" }] }
         }
       ]
     }
