@@ -92,7 +92,7 @@
 <body>
   <div class="container">
     <div class="head">
-      <h1>🆘 In Case of Emergency</h1>
+      <h1><span id="page-glyph"></span> In Case of Emergency</h1>
     </div>
     <p class="subtitle">The things another adult would need to know if you weren't around.</p>
     <div id="app"></div>
@@ -100,7 +100,9 @@
   </div>
 
   <script type="module">
-    import { esc, hubConfirm, hubAlert, searchMatch } from "/hub-sdk.js";
+    import { esc, hubConfirm, hubAlert, searchMatch, glyph, chickadee } from "/hub-sdk.js";
+    // Static markup cannot call the SDK helpers, so fill the heading glyph from script.
+    document.getElementById("page-glyph").innerHTML = glyph("sos");
     import {
       isAdult, CATEGORIES, categoryMeta, normalizeCategory,
       accessGroup, isInAccessGroup, visibilityForMode,
@@ -211,7 +213,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
           <button class="ghost" data-action="edit" data-entry-id="${esc(e.id)}">Edit</button>
           <button class="ghost" data-action="delete" data-entry-id="${esc(e.id)}">Delete</button>
         </div>` : "";
-      const loc = e.location_hint ? `<div class="loc">📍 ${esc(e.location_hint)}</div>` : "";
+      const loc = e.location_hint ? `<div class="loc">${glyph("location")} ${esc(e.location_hint)}</div>` : "";
       const details = e.details ? `<div class="details">${esc(e.details)}</div>` : "";
       const by = `<div class="loc">Added by ${esc(memberName(e.created_by))}</div>`;
       return `
@@ -238,8 +240,8 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
       const toolbar = `
         <div class="toolbar">
           ${mayContribute ? `<button data-testid="add-entry" onclick="addEntry()">+ Add entry</button>` : ""}
-          ${visible.length ? `<button class="ghost" onclick="printBinder()">🖨️ Print / Save PDF</button>` : ""}
-          ${IS_ADMIN ? `<button class="ghost" onclick="openSettings()">⚙️ Settings</button>` : ""}
+          ${visible.length ? `<button class="ghost" onclick="printBinder()">${glyph("document")} Print / Save PDF</button>` : ""}
+          ${IS_ADMIN ? `<button class="ghost" onclick="openSettings()">${glyph("gear")} Settings</button>` : ""}
         </div>`;
 
       const searchRow = visible.length ? `<div class="search-row"><input id="search" class="search-input" type="search" placeholder="Search the binder…" aria-label="Search the binder" value="${esc(searchQ)}" /></div>` : "";
@@ -247,16 +249,16 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
 
       let body;
       if (visible.length && shown.length === 0) {
-        body = `<div class="empty">Nothing matches "${esc(searchQ)}".</div>`;
+        body = `<div class="empty"><div>${chickadee("searching", { size: 72 })}</div>Nothing matches "${esc(searchQ)}".</div>`;
       } else if (visible.length === 0) {
         const msg = mayContribute
           ? "Nothing here yet. Add where documents live, account details, who to call, and how to run the household."
           : "There are no entries you can see yet.";
-        body = `<div class="empty">${esc(msg)}</div>`;
+        body = `<div class="empty"><div>${chickadee("nest", { size: 72 })}</div>${esc(msg)}</div>`;
       } else {
         body = groupByCategory(shown).map(cat => `
           <div class="cat">
-            <h2>${cat.icon} ${esc(cat.label)}</h2>
+            <h2>${glyph(cat.glyph)} ${esc(cat.label)}</h2>
             ${cat.items.map(entryHtml).join("")}
           </div>`).join("");
       }
@@ -296,7 +298,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
 
     function entryFormHtml(e) {
       const catOpts = CATEGORIES.map(c =>
-        `<option value="${c.key}"${e && e.category === c.key ? " selected" : ""}>${c.icon} ${esc(c.label)}</option>`
+        `<option value="${c.key}"${e && e.category === c.key ? " selected" : ""}>${esc(c.label)}</option>`
       ).join("");
       return `
         <h3>${e ? "Edit entry" : "Add entry"}</h3>
@@ -524,7 +526,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
       const visible = entries.filter(e => canSeeEntry(e, ME, groups, settings.access_group_id));
       const printedOn = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
       const sections = groupByCategory(visible).map(cat => `
-        <h2>${cat.icon} ${esc(cat.label)}</h2>
+        <h2>${glyph(cat.glyph)} ${esc(cat.label)}</h2>
         ${cat.items.map(e => `
           <div class="p-entry">
             <div class="p-title">${esc(e.title)}</div>
@@ -549,7 +551,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
           .print-btn { margin-top: 24px; padding: 10px 18px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
           @media print { .print-btn { display: none; } body { padding: 0; } }
         </style></head><body>
-        <h1>🆘 In Case of Emergency</h1>
+        <h1>${glyph("sos")} In Case of Emergency</h1>
         <div class="meta">Printed ${esc(printedOn)} · Keep this somewhere a trusted person can find it.</div>
         ${sections || "<p>No entries.</p>"}
         <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>

@@ -3,16 +3,16 @@ export { isAdult };
 
 /**
  * Categories the binder is organised into. `key` is stored plaintext in the
- * `category` column; `label`/`icon` are display-only.
+ * `category` column; `label`/`glyph` are display-only.
  */
 export const CATEGORIES = [
-  { key: "accounts",   label: "Accounts & Bills",   icon: "🏦" },
-  { key: "documents",  label: "Documents",          icon: "📄" },
-  { key: "contacts",   label: "People to Call",     icon: "📇" },
-  { key: "household",  label: "Household & How-To", icon: "🏠" },
-  { key: "medical",    label: "Medical",            icon: "🩺" },
-  { key: "digital",    label: "Passwords & Digital",icon: "🔐" },
-  { key: "other",      label: "Other",              icon: "🗒️" },
+  { key: "accounts",   label: "Accounts & Bills",   glyph: "bank" },
+  { key: "documents",  label: "Documents",          glyph: "document" },
+  { key: "contacts",   label: "People to Call",     glyph: "contact-card" },
+  { key: "household",  label: "Household & How-To", glyph: "house" },
+  { key: "medical",    label: "Medical",            glyph: "stethoscope" },
+  { key: "digital",    label: "Passwords & Digital",glyph: "lock" },
+  { key: "other",      label: "Other",              glyph: "note" },
 ];
 
 const CATEGORY_KEYS = new Set(CATEGORIES.map(c => c.key));
