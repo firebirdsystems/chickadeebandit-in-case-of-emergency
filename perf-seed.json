@@ -1,0 +1,866 @@
+{
+  "groups": [
+    {
+      "key": "circle",
+      "name": "Trusted Circle",
+      "members": [
+        "{{me}}",
+        "{{partner}}"
+      ]
+    }
+  ],
+  "seed": [
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES (?, ?)",
+      "params": [
+        "access_mode",
+        "group"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES (?, ?)",
+      "params": [
+        "access_group_id",
+        "{{group:circle}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-139 days','-1 hours'), datetime('now','-122 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-001",
+        "accounts",
+        "Checking account",
+        "Joint account at the credit union. Statements are paperless; the login is in the password manager.",
+        "group",
+        0,
+        "{{partner}}",
+        "Password manager, Finance folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-138 days','-2 hours'), datetime('now','-104 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-002",
+        "accounts",
+        "Mortgage",
+        "Paid automatically on the 1st from the joint checking account. Servicer phone number is on the monthly statement.",
+        "group",
+        1,
+        "{{me}}",
+        "Filing cabinet, top drawer"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-137 days','-3 hours'), datetime('now','-86 days','-3 hours'))",
+      "params": [
+        "perf-ice-003",
+        "accounts",
+        "Electric and gas",
+        "One combined bill, autopay from checking around the 12th.",
+        "group",
+        2,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-136 days','-4 hours'), datetime('now','-68 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-004",
+        "accounts",
+        "Water and sewer",
+        "Billed quarterly by the city. Not on autopay.",
+        "group",
+        3,
+        "{{me}}",
+        "Bill tray by the front door"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-135 days','-5 hours'), datetime('now','-50 days'), ?)",
+      "params": [
+        "perf-ice-005",
+        "accounts",
+        "Internet",
+        "Autopay on the credit card. Router admin password is on a sticker underneath.",
+        "group",
+        4,
+        "{{partner}}",
+        "Router, hall closet"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-134 days','-6 hours'), datetime('now','-32 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-006",
+        "accounts",
+        "Car insurance",
+        "Renews every six months, both cars on one policy.",
+        "group",
+        5,
+        "{{me}}",
+        "Glove box and filing cabinet"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-133 days','-7 hours'), datetime('now','-14 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-007",
+        "accounts",
+        "Home insurance",
+        "Paid through the mortgage escrow. Agent contact is under People to Call.",
+        "group",
+        6,
+        "{{partner}}",
+        "Filing cabinet, top drawer"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-132 days','-8 hours'), datetime('now','-116 days','-3 hours'))",
+      "params": [
+        "perf-ice-008",
+        "accounts",
+        "Credit cards",
+        "Two cards. Both are paid in full automatically each month.",
+        "group",
+        7,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-131 days'), datetime('now','-98 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-009",
+        "accounts",
+        "Retirement accounts",
+        "One account each plus an old rollover. Beneficiaries were updated last year.",
+        "group",
+        8,
+        "{{partner}}",
+        "Filing cabinet, second drawer"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-130 days','-1 hours'), datetime('now','-80 days'))",
+      "params": [
+        "perf-ice-010",
+        "accounts",
+        "College savings",
+        "One plan per child, monthly contribution from checking.",
+        "group",
+        9,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-129 days','-2 hours'), datetime('now','-62 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-011",
+        "accounts",
+        "Life insurance",
+        "Term policy on each adult. Policy numbers are on the summary page.",
+        "group",
+        10,
+        "{{partner}}",
+        "Fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-128 days','-3 hours'), datetime('now','-44 days','-2 hours'))",
+      "params": [
+        "perf-ice-012",
+        "accounts",
+        "Property tax",
+        "Paid from escrow. The assessment letter comes in spring.",
+        "group",
+        11,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-127 days','-4 hours'), datetime('now','-26 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-013",
+        "documents",
+        "Wills",
+        "Signed originals are with the attorney; copies are at home.",
+        "group",
+        0,
+        "{{partner}}",
+        "Fire safe, blue folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-126 days','-5 hours'), datetime('now','-8 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-014",
+        "documents",
+        "Passports",
+        "All five, check the expiry dates before booking travel.",
+        "group",
+        1,
+        "{{me}}",
+        "Fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-125 days','-6 hours'), datetime('now','-110 days'), ?)",
+      "params": [
+        "perf-ice-015",
+        "documents",
+        "Birth certificates",
+        "Certified copies for everyone.",
+        "group",
+        2,
+        "{{partner}}",
+        "Fire safe, red folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-124 days','-7 hours'), datetime('now','-92 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-016",
+        "documents",
+        "Marriage certificate",
+        "Certified copy.",
+        "adults",
+        3,
+        "{{partner}}",
+        "Fire safe, red folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-123 days','-8 hours'), datetime('now','-74 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-017",
+        "documents",
+        "House deed and closing papers",
+        "Everything from the purchase.",
+        "group",
+        4,
+        "{{partner}}",
+        "Filing cabinet, bottom drawer"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-122 days'), datetime('now','-56 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-018",
+        "documents",
+        "Car titles",
+        "Both titles. One car still has a lien.",
+        "adults",
+        5,
+        "{{partner}}",
+        "Fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-121 days','-1 hours'), datetime('now','-38 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-019",
+        "documents",
+        "Social Security cards",
+        "Originals for the whole family.",
+        "group",
+        6,
+        "{{partner}}",
+        "Fire safe, red folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-120 days','-2 hours'), datetime('now','-20 days'), ?)",
+      "params": [
+        "perf-ice-020",
+        "documents",
+        "Tax returns",
+        "Last seven years, paper and scanned.",
+        "adults",
+        7,
+        "{{me}}",
+        "Filing cabinet, bottom drawer"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-119 days','-3 hours'), datetime('now','-2 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-021",
+        "documents",
+        "Power of attorney",
+        "Durable and health-care versions for each adult.",
+        "group",
+        8,
+        "{{partner}}",
+        "Fire safe, blue folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-118 days','-4 hours'), datetime('now','-104 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-022",
+        "documents",
+        "Vaccination records",
+        "Paper cards plus the pediatrician portal.",
+        "adults",
+        9,
+        "{{me}}",
+        "Kitchen binder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-117 days','-5 hours'), datetime('now','-86 days','-3 hours'))",
+      "params": [
+        "perf-ice-023",
+        "contacts",
+        "Family doctor",
+        "Call the main line and choose the nurse option after hours.",
+        "adults",
+        0,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-116 days','-6 hours'), datetime('now','-68 days','-4 hours'))",
+      "params": [
+        "perf-ice-024",
+        "contacts",
+        "Pediatrician",
+        "Same-day sick visits if you call before nine.",
+        "adults",
+        1,
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-115 days','-7 hours'), datetime('now','-50 days'))",
+      "params": [
+        "perf-ice-025",
+        "contacts",
+        "Attorney",
+        "Handled the wills and the house closing.",
+        "adults",
+        2,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-114 days','-8 hours'), datetime('now','-32 days','-1 hours'))",
+      "params": [
+        "perf-ice-026",
+        "contacts",
+        "Insurance agent",
+        "Covers home and both cars.",
+        "adults",
+        3,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-113 days'), datetime('now','-14 days','-2 hours'))",
+      "params": [
+        "perf-ice-027",
+        "contacts",
+        "Next-door neighbors",
+        "They have a spare key and know the alarm.",
+        "adults",
+        4,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-112 days','-1 hours'), datetime('now','-1 days','-3 hours'))",
+      "params": [
+        "perf-ice-028",
+        "contacts",
+        "Grandparents",
+        "Two hours away, can come for the kids on short notice.",
+        "group",
+        5,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-111 days','-2 hours'), datetime('now','-98 days','-4 hours'))",
+      "params": [
+        "perf-ice-029",
+        "contacts",
+        "School front office",
+        "For pickups and absences.",
+        "adults",
+        6,
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-110 days','-3 hours'), datetime('now','-80 days'))",
+      "params": [
+        "perf-ice-030",
+        "contacts",
+        "Veterinarian",
+        "Records for the dog are on file there.",
+        "adults",
+        7,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-109 days','-4 hours'), datetime('now','-62 days','-1 hours'))",
+      "params": [
+        "perf-ice-031",
+        "contacts",
+        "Plumber",
+        "Has worked on the house before, knows where the main is.",
+        "adults",
+        8,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-108 days','-5 hours'), datetime('now','-44 days','-2 hours'))",
+      "params": [
+        "perf-ice-032",
+        "contacts",
+        "Accountant",
+        "Does the taxes every spring.",
+        "adults",
+        9,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-107 days','-6 hours'), datetime('now','-26 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-033",
+        "household",
+        "Water shutoff",
+        "Main valve is where the pipe enters the house. Turn clockwise to close.",
+        "adults",
+        0,
+        "{{partner}}",
+        "Basement, front wall"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-106 days','-7 hours'), datetime('now','-8 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-034",
+        "household",
+        "Breaker panel",
+        "Breakers are labelled. The kitchen is split across two.",
+        "adults",
+        1,
+        "{{adult2}}",
+        "Garage, left wall"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-105 days','-8 hours'), datetime('now','-1 days'), ?)",
+      "params": [
+        "perf-ice-035",
+        "household",
+        "Gas shutoff",
+        "Quarter turn with the wrench hanging beside the meter.",
+        "group",
+        2,
+        "{{partner}}",
+        "Outside, north side"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-104 days'), datetime('now','-92 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-036",
+        "household",
+        "Furnace filter",
+        "Change every three months, size is written on the old one.",
+        "adults",
+        3,
+        "{{partner}}",
+        "Basement utility room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-103 days','-1 hours'), datetime('now','-74 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-037",
+        "household",
+        "Alarm system",
+        "Panel by the garage door. The code is in the password manager.",
+        "adults",
+        4,
+        "{{me}}",
+        "Password manager"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-102 days','-2 hours'), datetime('now','-56 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-038",
+        "household",
+        "Spare keys",
+        "House, both cars and the shed.",
+        "adults",
+        5,
+        "{{partner}}",
+        "Key box in the hall closet"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-101 days','-3 hours'), datetime('now','-38 days','-4 hours'))",
+      "params": [
+        "perf-ice-039",
+        "household",
+        "Trash and recycling",
+        "Trash every Tuesday, recycling every other Tuesday.",
+        "adults",
+        6,
+        "{{adult2}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-100 days','-4 hours'), datetime('now','-20 days'), ?)",
+      "params": [
+        "perf-ice-040",
+        "household",
+        "Sprinkler system",
+        "Controller is in the garage. Blow out the lines before the first freeze.",
+        "adults",
+        7,
+        "{{me}}",
+        "Garage"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-99 days','-5 hours'), datetime('now','-2 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-041",
+        "household",
+        "Sump pump",
+        "Test it before heavy rain by lifting the float.",
+        "adults",
+        8,
+        "{{partner}}",
+        "Basement corner"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-98 days','-6 hours'), datetime('now','-1 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-042",
+        "household",
+        "Water heater",
+        "Pilot instructions are on the label on the tank.",
+        "group",
+        9,
+        "{{me}}",
+        "Basement utility room"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-97 days','-7 hours'), datetime('now','-86 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-043",
+        "household",
+        "Generator",
+        "Run outside only. The extension cords are with it.",
+        "adults",
+        10,
+        "{{partner}}",
+        "Shed"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-96 days','-8 hours'), datetime('now','-68 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-044",
+        "medical",
+        "Blood types and allergies",
+        "One page for each family member.",
+        "adults",
+        0,
+        "{{adult2}}",
+        "Kitchen binder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-95 days'), datetime('now','-50 days'), ?)",
+      "params": [
+        "perf-ice-045",
+        "medical",
+        "Current medications",
+        "Updated list with doses.",
+        "adults",
+        1,
+        "{{me}}",
+        "Kitchen binder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-94 days','-1 hours'), datetime('now','-32 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-046",
+        "medical",
+        "Health insurance cards",
+        "Member numbers and group number.",
+        "adults",
+        2,
+        "{{partner}}",
+        "Wallets, copy in the binder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-93 days','-2 hours'), datetime('now','-14 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-047",
+        "medical",
+        "Dental and vision plans",
+        "Separate cards from the medical plan.",
+        "adults",
+        3,
+        "{{me}}",
+        "Kitchen binder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-92 days','-3 hours'), datetime('now','-1 days','-3 hours'))",
+      "params": [
+        "perf-ice-048",
+        "medical",
+        "Preferred hospital",
+        "The one across the river is in network.",
+        "adults",
+        4,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-91 days','-4 hours'), datetime('now','-1 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-049",
+        "medical",
+        "Advance directives",
+        "One for each adult, the doctor has copies.",
+        "group",
+        5,
+        "{{partner}}",
+        "Fire safe, blue folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-90 days','-5 hours'), datetime('now','-80 days'), ?)",
+      "params": [
+        "perf-ice-050",
+        "medical",
+        "Epinephrine pens",
+        "One in the kitchen, one in the school bag. Check the expiry.",
+        "adults",
+        6,
+        "{{me}}",
+        "Kitchen, top shelf"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-89 days','-6 hours'), datetime('now','-62 days','-1 hours'))",
+      "params": [
+        "perf-ice-051",
+        "medical",
+        "Pharmacy",
+        "Prescriptions are on automatic refill.",
+        "adults",
+        7,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-88 days','-7 hours'), datetime('now','-44 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-052",
+        "medical",
+        "Eyeglass prescriptions",
+        "Most recent copies.",
+        "adults",
+        8,
+        "{{me}}",
+        "Kitchen binder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-87 days','-8 hours'), datetime('now','-26 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-053",
+        "digital",
+        "Password manager",
+        "Emergency access is set up between the two of us.",
+        "group",
+        0,
+        "{{partner}}",
+        "Emergency kit printout in the fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-86 days'), datetime('now','-8 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-054",
+        "digital",
+        "Phone passcodes",
+        "Sealed envelope.",
+        "group",
+        1,
+        "{{me}}",
+        "Fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-85 days','-1 hours'), datetime('now','-1 days'))",
+      "params": [
+        "perf-ice-055",
+        "digital",
+        "Email accounts",
+        "Recovery addresses point at each other.",
+        "group",
+        2,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-84 days','-2 hours'), datetime('now','-1 days','-1 hours'))",
+      "params": [
+        "perf-ice-056",
+        "digital",
+        "Photo library",
+        "Shared family library, backed up nightly.",
+        "group",
+        3,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-83 days','-3 hours'), datetime('now','-74 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-057",
+        "digital",
+        "Computer backups",
+        "External drive plus an online backup.",
+        "group",
+        4,
+        "{{partner}}",
+        "Office shelf"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-82 days','-4 hours'), datetime('now','-56 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-058",
+        "digital",
+        "Streaming and subscriptions",
+        "List of what renews and when.",
+        "group",
+        5,
+        "{{me}}",
+        "Password manager"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-81 days','-5 hours'), datetime('now','-38 days','-4 hours'))",
+      "params": [
+        "perf-ice-059",
+        "digital",
+        "Domain name",
+        "Renews every January.",
+        "group",
+        6,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-80 days','-6 hours'), datetime('now','-20 days'), ?)",
+      "params": [
+        "perf-ice-060",
+        "digital",
+        "Two-factor recovery codes",
+        "Printed, one sheet per account.",
+        "group",
+        7,
+        "{{me}}",
+        "Fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-79 days','-7 hours'), datetime('now','-2 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-061",
+        "other",
+        "Pet care",
+        "Feeding amounts, walk schedule and the vet.",
+        "adults",
+        0,
+        "{{partner}}",
+        "Fridge door"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-78 days','-8 hours'), datetime('now','-1 days','-2 hours'), ?)",
+      "params": [
+        "perf-ice-062",
+        "other",
+        "Funeral wishes",
+        "Written down, with the attorney and at home.",
+        "adults",
+        1,
+        "{{me}}",
+        "Fire safe, blue folder"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-77 days'), datetime('now','-1 days','-3 hours'), ?)",
+      "params": [
+        "perf-ice-063",
+        "other",
+        "Storage unit",
+        "Unit number and gate code.",
+        "group",
+        2,
+        "{{partner}}",
+        "Password manager"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-76 days','-1 hours'), datetime('now','-68 days','-4 hours'), ?)",
+      "params": [
+        "perf-ice-064",
+        "other",
+        "Safe deposit box",
+        "Both adults are signers.",
+        "adults",
+        3,
+        "{{adult2}}",
+        "Key in the fire safe"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-75 days','-2 hours'), datetime('now','-50 days'), ?)",
+      "params": [
+        "perf-ice-065",
+        "other",
+        "Kids' routines",
+        "School, activities and who drives which day.",
+        "adults",
+        4,
+        "{{me}}",
+        "Fridge door"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, sort_order, created_by, created_at, updated_at, location_hint) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','-74 days','-3 hours'), datetime('now','-32 days','-1 hours'), ?)",
+      "params": [
+        "perf-ice-066",
+        "other",
+        "Car maintenance",
+        "Service records for both cars.",
+        "adults",
+        5,
+        "{{partner}}",
+        "Glove boxes"
+      ]
+    }
+  ]
+}
