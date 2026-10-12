@@ -81,6 +81,22 @@
           "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "e-group", "details": "1-2-3" }] }
         }
       ]
+    },
+    {
+      "name": "in a shared space whose access group has no members, only the steward stands in for it; a participant adult sees and changes adults-level entries but not group-only ones",
+      "context": "shared_space",
+      "members": {"author": "adult", "peer": "adult", "steward": "admin"},
+      "steps": [
+        {"action": "seedGroup", "group": "access", "name": "Emergency access", "members": []},
+        {"action": "seedRaw", "sql": "INSERT INTO app_in_case_of_emergency__settings (key, value) VALUES ('access_group_id', ?)", "params": ["{{group:access}}"]},
+        {"action": "seedRaw", "sql": "INSERT INTO app_in_case_of_emergency__entries (id, category, title, details, visibility, created_by, created_at, updated_at) VALUES ('e-group', 'other', 'Lockbox code', '9-9-9', 'group', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('e-adults', 'other', 'Water shutoff', 'basement', 'adults', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')", "params": ["{{author}}", "{{author}}"]},
+        {"action": "db", "as": "peer", "sql": "SELECT id FROM app_in_case_of_emergency__entries", "expect": {"status": 200, "rowCount": 1, "rowsContain": [{"id": "e-adults"}]}},
+        {"action": "db", "as": "steward", "sql": "SELECT id FROM app_in_case_of_emergency__entries ORDER BY id", "expect": {"status": 200, "rowCount": 2, "rowsContain": [{"id": "e-adults"}, {"id": "e-group"}]}},
+        {"action": "db", "as": "peer", "sql": "UPDATE app_in_case_of_emergency__entries SET details = 'tampered' WHERE id = 'e-group' RETURNING id", "expect": {"status": 200, "rowCount": 0}},
+        {"action": "db", "as": "peer", "sql": "UPDATE app_in_case_of_emergency__entries SET details = 'garage' WHERE id = 'e-adults' RETURNING id", "expect": {"status": 200, "rowCount": 1}},
+        {"action": "db", "as": "steward", "sql": "UPDATE app_in_case_of_emergency__entries SET details = '1-2-3' WHERE id = 'e-group' RETURNING id", "expect": {"status": 200, "rowCount": 1}},
+        {"action": "db", "as": "author", "sql": "SELECT id, details FROM app_in_case_of_emergency__entries ORDER BY id", "expect": {"status": 200, "rowCount": 2, "rowsContain": [{"id": "e-adults", "details": "garage"}, {"id": "e-group", "details": "1-2-3"}]}}
+      ]
     }
   ]
 }

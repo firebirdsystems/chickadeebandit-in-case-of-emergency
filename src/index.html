@@ -108,6 +108,9 @@
       html.printing body > *:not(.print-root) { display: none !important; }
       html.printing .print-root { display: block; }
     }
+    .load-error { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .load-error-retry { background: none; border: 1px solid currentColor; border-radius: 8px; padding: 5px 10px; font: inherit; font-weight: 600; color: inherit; cursor: pointer; flex-shrink: 0; }
+    .load-error-retry:hover { background: none; }
   </style>
 </head>
 <body>
@@ -156,11 +159,9 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sql, params }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error ?? `Request failed (${res.status})`);
-      }
-      return res.json();
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json || typeof json !== "object" || json.error) throw new Error(json?.error || "Couldn’t reach the hub. Try again.");
+      return json;
     }
 
     function memberName(id) { return memberMap.get(id)?.name ?? "Someone"; }
@@ -176,12 +177,14 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
         memberMap = new Map(members.map(m => [m.id, m]));
         return;
       }
-      try {
-        const res  = await fetch(`${CONTEXT}?keys=family.members,family.groups`);
-        const data = await res.json();
-        members = data["family.members"] ?? [];
-        groups  = data["family.groups"]  ?? [];
-      } catch { members = []; groups = []; }
+      // A failed read throws: firstLoad shows the load banner rather than an empty roster.
+      const res  = await fetch(`${CONTEXT}?keys=family.members,family.groups`);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || typeof data !== "object" || data.error) throw new Error("Couldn’t reach the hub. Try again.");
+      // The hub answers 200 and names a key it could not resolve in $errors: that read failed too.
+      if (Array.isArray(data.$errors) && (data.$errors.includes("family.members") || data.$errors.includes("family.groups"))) throw new Error("Couldn’t reach the hub. Try again.");
+      members = data["family.members"] ?? [];
+      groups  = data["family.groups"]  ?? [];
       memberMap = new Map(members.map(m => [m.id, m]));
     }
 
@@ -378,12 +381,15 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
       try {
         const now = new Date().toISOString();
         if (existingId) {
-          await db(
+          const { changed } = await db(
             `UPDATE app_in_case_of_emergency__entries
                SET category = ?, title = ?, location_hint = ?, details = ?, updated_at = ?
              WHERE id = ?`,
             [category, title, location, details, now, existingId]
           );
+          // The hub answers a write the row policy narrowed to nothing as a
+          // success with no rows changed.
+          if (changed === 0) throw new Error("This entry can no longer be changed.");
           const idx = entries.findIndex(e => e.id === existingId);
           if (idx !== -1) entries[idx] = { ...entries[idx], category, title, location_hint: location, details, updated_at: now };
         } else {
@@ -416,7 +422,12 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
       });
       if (!ok) return;
       try {
-        await db(`DELETE FROM app_in_case_of_emergency__entries WHERE id = ?`, [id]);
+        const { changed } = await db(`DELETE FROM app_in_case_of_emergency__entries WHERE id = ?`, [id]);
+        if (changed === 0) {
+          await loadEntries();
+          render();
+          throw new Error("This entry can no longer be changed.");
+        }
         entries = entries.filter(x => x.id !== id);
         render();
       } catch (err) {
@@ -556,15 +567,22 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
     };
 
     // ── Init ─────────────────────────────────────────────────────────────────
-    (async () => {
+    // The first load, and "Try again" after it fails. A binder that could not
+    // be read shows only the banner: no empty state, and nothing to add to or
+    // set up over entries and access settings the page has not seen.
+    async function firstLoad() {
       try {
         await loadMembers();
         await Promise.all([loadSettings(), loadEntries()]);
         render();
-      } catch (err) {
-        document.getElementById("status").textContent = `Error: ${err.message}`;
+      } catch {
+        document.getElementById("app").innerHTML = `<div class="load-error" data-testid="load-error" role="alert"><span>Couldn’t load the binder.</span> <button type="button" class="load-error-retry" data-testid="load-retry">Try again</button></div>`;
       }
-    })();
+    }
+    document.getElementById("app").addEventListener("click", (e) => {
+      if (e.target.closest('[data-testid="load-retry"]')) firstLoad();
+    });
+    firstLoad();
   </script>
 </body>
 </html>
