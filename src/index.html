@@ -389,7 +389,7 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
           );
           // The hub answers a write the row policy narrowed to nothing as a
           // success with no rows changed.
-          if (changed === 0) throw new Error("This entry can no longer be changed.");
+          if (changed === 0) throw Object.assign(new Error("This entry can no longer be changed."), { forUser: true });
           const idx = entries.findIndex(e => e.id === existingId);
           if (idx !== -1) entries[idx] = { ...entries[idx], category, title, location_hint: location, details, updated_at: now };
         } else {
@@ -407,7 +407,8 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
         render();
       } catch (err) {
         if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Add"; }
-        await hubAlert("Could not save this entry.", { description: err.message });
+        if (err?.forUser) await hubAlert("Could not save this entry.", { description: err.message });
+        else { console.error(err); await hubAlert("Couldn’t save the entry — try again."); }
       }
     };
 
@@ -426,12 +427,13 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
         if (changed === 0) {
           await loadEntries();
           render();
-          throw new Error("This entry can no longer be changed.");
+          throw Object.assign(new Error("This entry can no longer be changed."), { forUser: true });
         }
         entries = entries.filter(x => x.id !== id);
         render();
       } catch (err) {
-        await hubAlert("Could not delete this entry.", { description: err.message });
+        if (err?.forUser) await hubAlert("Could not delete this entry.", { description: err.message });
+        else { console.error(err); await hubAlert("Couldn’t delete the entry — try again."); }
       }
     };
 
@@ -550,7 +552,8 @@ let searchQ = "";       // in-app search (see logic.js searchableFields)
         }
       } catch (err) {
         if (btn) { btn.disabled = false; btn.textContent = "Save"; }
-        await hubAlert("Could not save settings.", { description: err.message });
+        console.error(err);
+        await hubAlert("Couldn’t save the settings — try again.");
       }
     };
 
