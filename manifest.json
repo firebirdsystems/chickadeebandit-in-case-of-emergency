@@ -47,8 +47,5 @@
     "settings_table": "settings",
     "keys": ["access_mode", "access_group_id"]
   },
-  "nav": { "label": "Emergency Info" },
-  "resource_limits": {
-    "max_db_bytes": 52428800
-  }
+  "nav": { "label": "Emergency Info" }
 }
